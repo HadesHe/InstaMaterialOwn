@@ -1,6 +1,7 @@
 package com.example.hades.myapplication;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Build;
 import android.view.Display;
@@ -12,6 +13,10 @@ import android.view.WindowManager;
 public class Utils {
     private static int screenWidth=0;
     private static int screenHeight=0;
+
+    public static int dpToPx(int dp){
+        return (int) (dp* Resources.getSystem().getDisplayMetrics().density);
+    }
 
     public static int getScreenHeight(Context context){
         if(screenHeight==0){

@@ -1,14 +1,19 @@
 package com.example.hades.myapplication.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import com.example.hades.myapplication.R;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
@@ -16,6 +21,13 @@ import butterknife.ButterKnife;
  * Created by Hades on 2017/4/13.
  */
 public class LoadingFeedItemView  extends FrameLayout{
+
+    @BindView(R.id.vSendingProgress)
+    SendingProgressView vSendingProgress;
+    @BindView(R.id.vProgressBg)
+    View vProgressBg;
+    private OnLoadingFinishedListener onLoadingFinishedListener;
+
     public LoadingFeedItemView(Context context) {
         super(context);
         init();
@@ -40,5 +52,44 @@ public class LoadingFeedItemView  extends FrameLayout{
     private void init() {
         LayoutInflater.from(getContext()).inflate(R.layout.item_feed_loader,this,true);
         ButterKnife.bind(this);
+    }
+
+    public void startLoading(){
+        vSendingProgress.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                vSendingProgress.getViewTreeObserver().removeOnPreDrawListener(this);
+                vSendingProgress.simulateProgress();
+                return true;
+            }
+        });
+
+        vSendingProgress.setOnLoadingFinishedListener(new SendingProgressView.OnLoadingFinishedListener() {
+            @Override
+            public void onLoadingFinished() {
+                vSendingProgress.animate().scaleX(0).scaleY(0).setDuration(200).setStartDelay(100);
+                vProgressBg.animate().alpha(0f).setDuration(200).setStartDelay(100)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                vSendingProgress.setScaleX(1);
+                                vSendingProgress.setScaleY(1);
+                                vProgressBg.setAlpha(1);
+                                if(onLoadingFinishedListener!=null){
+                                    onLoadingFinishedListener.onLoadingFinished();
+                                    onLoadingFinishedListener=null;
+                                }
+                            }
+                        }).start();
+            }
+        });
+    }
+
+    public void setOnLoadingFinishedListener(OnLoadingFinishedListener onLoadingFinishedListener){
+        this.onLoadingFinishedListener=onLoadingFinishedListener;
+    }
+
+    public interface OnLoadingFinishedListener{
+        void onLoadingFinished();
     }
 }
