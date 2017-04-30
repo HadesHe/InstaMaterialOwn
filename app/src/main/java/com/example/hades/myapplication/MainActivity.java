@@ -24,6 +24,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.example.hades.myapplication.activity.BaseDrawerActivity;
+import com.example.hades.myapplication.activity.CommentsActivity;
 import com.example.hades.myapplication.adapter.FeedAdapter;
 import com.example.hades.myapplication.adapter.FeedItemAnimator;
 import com.example.hades.myapplication.view.FeedContextMenu;
@@ -163,7 +164,12 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     @Override
     public void onCommentsClick(View view, int position) {
-        // TODO: 2017/4/25 intent to commentsactivity
+        final Intent intent=new Intent(this,CommentsActivity.class);
+        int[] startingLocation=new int[2];
+        view.getLocationOnScreen(startingLocation);
+        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION,startingLocation);
+        startActivity(intent);
+        overridePendingTransition(0,0);
 
     }
 
