@@ -84,7 +84,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 feedItems.get(adapterPosition).likesCount++;
                 notifyItemChanged(adapterPosition,ACTION_LIKE_BUTTON_CLICKED);
                 if(context instanceof MainActivity){
-                    ((MainActivity)context).showLikeSnackbar();
+                    ((MainActivity)context).showLikedSnackbar();
                 }
             }
         });

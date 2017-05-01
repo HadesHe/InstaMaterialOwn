@@ -11,3 +11,5 @@
 /app/build/
 libs/
 /gradle/
+/build.gradle
+app/src/main/res/translate/

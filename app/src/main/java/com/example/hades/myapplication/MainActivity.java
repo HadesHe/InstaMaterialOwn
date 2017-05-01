@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -23,8 +24,11 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import com.example.hades.myapplication.activity.BaseActivity;
 import com.example.hades.myapplication.activity.BaseDrawerActivity;
 import com.example.hades.myapplication.activity.CommentsActivity;
+import com.example.hades.myapplication.activity.TakePhotoActivity;
+import com.example.hades.myapplication.activity.UserProfileActivity;
 import com.example.hades.myapplication.adapter.FeedAdapter;
 import com.example.hades.myapplication.adapter.FeedItemAnimator;
 import com.example.hades.myapplication.view.FeedContextMenu;
@@ -33,6 +37,7 @@ import com.example.hades.myapplication.view.FeedContextMenuManager;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observer;
 import rx.Scheduler;
@@ -40,9 +45,9 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFeedItemClickListener, FeedContextMenu.OnFeedContextMenuItemClickListener {
+public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItemClickListener, FeedContextMenu.OnFeedContextMenuItemClickListener {
 
-    public static final String ACTION_SHOW_LOADING_ITEM="action_show_loading_item";
+    public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
 
     private static final int ANIM_DURATION_TOOLBAR=300;
     private static final int ANIM_DURATION_FAB=400;
@@ -59,15 +64,15 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     private boolean pendingIntroAnimation;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         setupFeed();
         if(savedInstanceState==null){
             pendingIntroAnimation=true;
         }else{
             feedAdapter.updateItems(false);
+
         }
     }
 
@@ -78,13 +83,12 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 return 300;
             }
         };
-
         rvFeed.setLayoutManager(linearLayoutManager);
 
         feedAdapter=new FeedAdapter(this);
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
-        rvFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        rvFeed.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 FeedContextMenuManager.getInstance().onScrolled(recyclerView,dx,dy);
@@ -105,9 +109,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                rvFeed.smoothScrollToPosition(0);
+               rvFeed.smoothScrollToPosition(0);
                 feedAdapter.showLoadingView();
-
             }
         },500);
     }
@@ -134,7 +137,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 .translationY(0)
                 .setDuration(ANIM_DURATION_TOOLBAR)
                 .setStartDelay(300);
-
         getIvLogo().animate()
                 .translationY(0)
                 .setDuration(ANIM_DURATION_TOOLBAR)
@@ -148,7 +150,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     public void onAnimationEnd(Animator animation) {
                         startContentAnimation();
                     }
-                }).start();
+                })
+        .start();
     }
 
     private void startContentAnimation(){
@@ -159,7 +162,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 .setDuration(ANIM_DURATION_FAB)
                 .start();
         feedAdapter.updateItems(true);
-
     }
 
     @Override
@@ -167,21 +169,23 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         final Intent intent=new Intent(this,CommentsActivity.class);
         int[] startingLocation=new int[2];
         view.getLocationOnScreen(startingLocation);
-        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION,startingLocation);
+        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION,startingLocation[1]);
         startActivity(intent);
         overridePendingTransition(0,0);
-
     }
 
     @Override
     public void onMoreClick(View view, int position) {
         FeedContextMenuManager.getInstance().toggleContextMenuFromView(view,position,this);
-
     }
 
     @Override
     public void onProfileClick(View view) {
-// TODO: 2017/4/26 intent to userprofileactivity
+        int[] startingLocation=new int[2];
+        view.getLocationOnScreen(startingLocation);
+        startingLocation[0]+=view.getWidth()/2;
+        UserProfileActivity.startUserProfileFromLocation(startingLocation,this);
+        overridePendingTransition(0,0);
     }
 
     @Override
@@ -192,13 +196,11 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     @Override
     public void onSharePhotoClick(int feedItem) {
         FeedContextMenuManager.getInstance().hideContextMenu();
-
     }
 
     @Override
     public void onCopyShareUrlClick(int feedItem) {
         FeedContextMenuManager.getInstance().hideContextMenu();
-
     }
 
     @Override
@@ -206,12 +208,17 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         FeedContextMenuManager.getInstance().hideContextMenu();
     }
 
+
     @OnClick(R.id.btnCreate)
     public void onTakePhotoClick(){
-        // TODO: 2017/4/26 intent to TAKEPHOTOACTIVITY
+        int[] startingLocation=new int[2];
+        fabCreate.getLocationOnScreen(startingLocation);
+        startingLocation[0]+=fabCreate.getWidth()/2;
+        TakePhotoActivity.startCameraFromLocation(startingLocation,this);
+        overridePendingTransition(0,0);
     }
 
-    public void showLikeSnackbar(){
+    public void showLikedSnackbar(){
         Snackbar.make(clContent,"Liked!",Snackbar.LENGTH_SHORT).show();
     }
 }

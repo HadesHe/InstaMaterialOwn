@@ -45,41 +45,6 @@ public class BaseDrawerActivity extends BaseActivity {
         setupHeader();
     }
 
-    private void setupHeader() {
-        View headerView=vNavigation.getHeaderView(0);
-        ivMenuUserProfilePhoto=(ImageView)headerView.findViewById(R.id.ivMenuUserProfilePhoto);
-        headerView.findViewById(R.id.vGlobalMenuHeader).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onGlobalMenuHeaderClick(v);
-            }
-        });
-        Picasso.with(this)
-                .load(profilePhoto)
-                .placeholder(R.drawable.img_circle_placeholder)
-                .resize(avatarSize,avatarSize)
-                .centerCrop()
-                .transform(new CircleTransfomation())
-                .into(ivMenuUserProfilePhoto);
-
-    }
-
-    private void onGlobalMenuHeaderClick(final View v) {
-
-        drawerLayout.closeDrawers();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-               int[] startingLocation=new int[2];
-                v.getLocationOnScreen(startingLocation);
-                startingLocation[0]+=v.getWidth()/2;
-                UserProfileActivity.startUserProfileFromLocation(startingLocation,BaseDrawerActivity.this);
-                overridePendingTransition(0,0);
-            }
-        },200);
-
-    }
-
     @Override
     protected void setupToolbar() {
         super.setupToolbar();
@@ -91,5 +56,38 @@ public class BaseDrawerActivity extends BaseActivity {
                 }
             });
         }
+    }
+
+    private void setupHeader(){
+        View headerView=vNavigation.getHeaderView(0);
+        ivMenuUserProfilePhoto= (ImageView) headerView.findViewById(R.id.ivMenuUserProfilePhoto);
+        headerView.findViewById(R.id.vGlobalMenuHeader).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onGlobalMenuHeaderClick(v);
+            }
+        });
+
+        Picasso.with(this)
+                .load(profilePhoto)
+                .placeholder(R.drawable.img_circle_placeholder)
+                .resize(avatarSize,avatarSize)
+                .centerCrop()
+                .transform(new CircleTransfomation())
+                .into(ivMenuUserProfilePhoto);
+    }
+
+    public void onGlobalMenuHeaderClick(final View v){
+        drawerLayout.closeDrawer(Gravity.LEFT);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+               int[] startingLocation=new int[2];
+                v.getLocationOnScreen(startingLocation);
+                startingLocation[0]+=v.getWidth()/2;
+                UserProfileActivity.startUserProfileFromLocation(startingLocation,BaseDrawerActivity.this);
+                overridePendingTransition(0,0);
+            }
+        },200);
     }
 }

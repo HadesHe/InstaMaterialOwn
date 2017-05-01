@@ -51,6 +51,9 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
     View vUserStats;
     @BindView(R.id.vUserProfileRoot)
     View vUserProfileRoot;
+
+    private int avatarSize;
+    private String profilePhoto;
     private UserProfileAdapter userPhotosAdapter;
 
     public static void startUserProfileFromLocation(int[] startingLocation, Activity startingActivity) {
@@ -155,7 +158,6 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
         ivUserProfilePhoto.animate().translationY(0).setDuration(300).setStartDelay(100).setInterpolator(INTERPOLATOR);
         vUserDetails.animate().translationY(0).setDuration(300).setStartDelay(200).setInterpolator(INTERPOLATOR);
         vUserStats.animate().alpha(1).setDuration(200).setStartDelay(400).setInterpolator(INTERPOLATOR).start();
-
 
     }
 }
